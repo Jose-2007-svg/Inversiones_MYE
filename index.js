@@ -6,7 +6,14 @@ const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+
+// Configuración estricta de CORS para Socket.io en producción
+const io = new Server(server, { 
+  cors: { 
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"]
+  } 
+});
 
 // Importar rutas
 const zapatillasRoutes = require('./routes/zapatillas');
@@ -16,7 +23,13 @@ const separacionesRoutes = require('./routes/separaciones');
 
 app.set('socketio', io);
 
-app.use(cors());
+// Configuración estricta de CORS para Express (API)
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(express.json());
 
 // Enchufamos nuestro endpoint
@@ -36,5 +49,5 @@ io.on('connection', (socket) => {
 
 const PUERTO = process.env.PORT || 3000;
 server.listen(PUERTO, () => {
-  console.log(`Servidor rodando a toda máquina en http://localhost:${PUERTO}`);
+  console.log(`Servidor rodando a toda máquina en el puerto ${PUERTO}`);
 });
